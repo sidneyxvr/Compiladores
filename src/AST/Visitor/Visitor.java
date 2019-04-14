@@ -39,14 +39,4 @@ public interface Visitor {
   public void visit(NewObject n);
   public void visit(Not n);
   public void visit(Identifier n);
-  public void visit(Modulo n);
-  public void visit(Or n);
-  public void visit(GreaterThan n);
-  public void visit(NotEqual n);
-  public void visit(LessEqual n);
-  public void visit(GreaterEqual n);
-  public void visit(Divide n);
-  public void visit(DoubleArrayType n);
-  public void visit(DoubleType n);
-  public void visit(DoubleLiteral n);
 }
