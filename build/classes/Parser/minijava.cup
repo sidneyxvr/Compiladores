@@ -1,0 +1,190 @@
+/**
+ * CUP specification of the language grammar for a simple demo language.
+ * Change this into the language grammar of MiniJava for your implementation.
+ *
+ * CSE 401/M501/P501 18sp
+ */
+
+package Parser;
+
+import AST.*;
+import java.util.*;
+import java_cup.runtime.*;
+
+/* Terminals (lexical tokens returned by the scanner): */
+
+/* reserved words */
+terminal DISPLAY, CLASS, NEW, EXTENDS, INT, DOUBLE, BOOLEAN, PUBLIC, STATIC, VOID, THIS, STRING, MAIN, LENGTH, IF, ELSE, WHILE, RETURN, TRUE, FALSE, PRINT;
+
+/* operators */
+terminal PLUS, BECOMES, MINUS, TIMES, DIVIDE, MOD, NOT, OR, AND, EQUAL, NOTEQUAL, LESSTHAN, GREATERTHAN, LESSEQUAL, GREATEREQUAL, DOT;
+
+/* delimiters */
+terminal LPAREN, RPAREN, SEMICOLON, LBRACKET, RBRACKET, LBRACE, RBRACE, COMMA;
+
+/* identifiers */
+terminal String IDENTIFIER;
+terminal Integer INTLITERAL;
+terminal Double DOUBLELITERAL;
+
+
+/* Nonterminals (constructed by parser): */
+
+nonterminal Program Program;
+nonterminal Statement Statement;
+nonterminal Assign AssignStatement;
+nonterminal Display DisplayStatement;
+nonterminal Exp Expression;
+nonterminal Identifier Identifier;
+nonterminal While WhileStatement;
+nonterminal Print PrintStatement;
+nonterminal If IfStatement;
+nonterminal ArrayAssign ArrayAssignStatement;
+nonterminal StatementList StatementList;
+nonterminal ClassDeclList ClassDeclList;
+nonterminal ClassDecl ClassDecl;
+nonterminal VarDeclList VarDeclList;
+nonterminal VarDecl VarDecl;
+nonterminal MethodDeclList MethodDeclList;
+nonterminal MethodDecl MethodDecl;
+nonterminal Formal Formal;
+nonterminal FormalList FormalList;
+nonterminal ExpList ExpressionList;
+nonterminal Type Type;
+nonterminal MainClass MainClass;
+
+/* Precedence declarations: */
+
+precedence left PLUS, MINUS, TIMES, DIVIDE, MOD, OR, AND, EQUAL, NOTEQUAL, LESSTHAN, GREATERTHAN, LESSEQUAL, GREATEREQUAL, DOT;
+precedence right NEW, NOT;
+
+
+/* Productions: */
+	     
+MainClass ::= CLASS Identifier:name LBRACE PUBLIC STATIC VOID MAIN LPAREN STRING LBRACKET RBRACKET Identifier:args RPAREN LBRACE Statement:s RBRACE RBRACE
+			{: RESULT = new MainClass(name, args, s, namexleft); :};	     
+	        	
+Program ::= MainClass:mc ClassDecl:c
+			{:
+				ClassDeclList cl = new ClassDeclList(cxleft);
+				cl.add(c);
+				RESULT = new Program(mc, cl, mcxleft);
+			 :};  	 
+                    
+ClassDeclExtends ::= CLASS Identifier:name EXTENDS Identifier:parent 
+			  		LBRACE:lb VarDeclList:vl MethodDeclList:ml RBRACE
+					{: RESULT = new ClassDeclExtends(name, parent, vl, ml, lbxleft); :};
+					
+ClassDecl ::= CLASS Identifier:name
+			  LBRACE:lb VarDeclList:vl MethodDeclList:ml RBRACE
+				{: RESULT = new ClassDeclSimple(name, vl, ml, lbxleft); :};
+					
+Formal ::= Type:t Identifier:id
+            {: RESULT = new Formal(t, id, txleft); :};
+            
+VarDecl ::= Type:t Identifier:id SEMICOLON
+            {: RESULT = new VarDecl(t, id, txleft); :};
+
+MethodDecl ::= PUBLIC Type:t Identifier:id LPAREN FormalList:fl RPAREN 
+			LBRACE VarDeclList:vl StatementList:sl RETURN Expression:e SEMICOLON RBRACE 
+            {: RESULT = new MethodDecl(t, id, fl, vl, sl, e, txleft); :};
+
+Type ::=  INT:i
+            {: RESULT = new IntegerType(ixleft); :}
+          | DOUBLE:d
+            {: RESULT = new DoubleType(dxleft); :}
+          | BOOLEAN:b
+            {: RESULT = new BooleanType(bxleft); :}
+          | INT LBRACKET RBRACKET:rb
+            {: RESULT = new IntArrayType(rbxleft); :}
+          | DOUBLE LBRACKET RBRACKET:rb
+            {: RESULT = new DoubleArrayType(rbxleft); :}
+          | IDENTIFIER:id
+            {: RESULT = new IdentifierType(id, idxleft); :};
+
+Statement   ::= AssignStatement:s
+                {: RESULT = s; :}
+            | DisplayStatement:s
+                {: RESULT = s; :}
+            | WhileStatement:s
+            	{: RESULT = s; :}
+           	| IfStatement:s
+           		{: RESULT = s; :}
+           	| PrintStatement:s
+           		{: RESULT = s; :}
+           	| ArrayAssignStatement:s
+           		{: RESULT = s; :}
+           	| LBRACE:l RBRACE
+           		{: 	StatementList s = new StatementList(lxleft); 
+           			RESULT = new Block(s, lxleft); :}
+           	| LBRACE StatementList:sl RBRACE
+            	{: RESULT = new Block(sl, slxleft); :};
+
+WhileStatement ::= WHILE LPAREN Expression:e RPAREN Statement:s
+            		{: RESULT = new While(e, s, exleft); :};
+
+AssignStatement ::= Identifier:id BECOMES Expression:expr SEMICOLON
+                    {: RESULT = new Assign(id, expr, idxleft); :};
+
+DisplayStatement ::= DISPLAY:d Expression:expr SEMICOLON
+                     {: RESULT = new Display(expr, dxleft); :};
+
+PrintStatement ::= PRINT LPAREN Expression:e RPAREN
+					{: RESULT = new Print(e, exleft); :};
+					
+IfStatement ::= IF LPAREN Expression:e RPAREN Statement:s1 ELSE Statement:s2
+				{: RESULT = new If(e, s1, s2, exleft); :};
+				
+ArrayAssignStatement ::= Identifier:id LBRACKET Expression:e1 RBRACKET BECOMES Expression:e2 SEMICOLON
+							{: RESULT = new ArrayAssign(id, e1, e2, idxleft); :};
+
+Expression    ::= IDENTIFIER:name
+            {: RESULT = new IdentifierExp(name, namexleft); :}
+        | Expression:arg1 PLUS Expression:arg2
+            {: RESULT = new Plus(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 TIMES Expression:arg2
+            {: RESULT = new Times(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 MINUS Expression:arg2
+            {: RESULT = new Minus(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 DIVIDE Expression:arg2
+            {: RESULT = new Divide(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 LESSTHAN Expression:arg2
+            {: RESULT = new LessThan(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 GREATERTHAN Expression:arg2
+        	{: RESULT = new GreaterThan(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 GREATEREQUAL Expression:arg2
+        	{: RESULT = new GreaterEqual(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 LESSEQUAL Expression:arg2
+        	{: RESULT = new LessEqual(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 NOTEQUAL Expression:arg2
+        	{: RESULT = new NotEqual(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 AND Expression:arg2
+            {: RESULT = new And(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 OR Expression:arg2
+            {: RESULT = new Or(arg1, arg2, arg1xleft); :}
+        | Expression:arg1 MOD Expression:arg2
+            {: RESULT = new Modulo(arg1, arg2, arg1xleft); :}
+        | NOT Expression:arg1 
+            {: RESULT = new Not(arg1, arg1xleft); :}
+        | LPAREN Expression:expr RPAREN
+            {: RESULT = expr; :}
+        | LBRACKET Expression:expr RBRACKET
+            {: RESULT = new NewArray(expr, exprxleft); :}
+        | THIS:t
+    		{: RESULT = new This(txleft); :}
+    	| FALSE:f
+    		{: RESULT = new False(fxleft); :}
+    	| TRUE:t
+    		{: RESULT = new True(txleft); :}
+    	| Expression:e DOT LENGTH
+    		{: RESULT = new ArrayLength(e, exleft); :}
+    	| Expression:e DOT Identifier:id LPAREN RPAREN
+    		{: RESULT = new NewObject(id, idxleft); :}
+    	| Expression:arg1 LBRACKET Expression:arg2 RBRACKET
+            {: RESULT = new ArrayLookup(arg1, arg2, arg2xleft); :}
+        | INTLITERAL:n
+            {: RESULT = new IntegerLiteral(n, nxleft); :}
+        | DOUBLELITERAL:n
+            {: RESULT = new DoubleLiteral(n, nxleft); :}
+        | Expression:e DOT Identifier:id LPAREN ExpressionList:el RPAREN
+            {: RESULT = new Call(e, id, el, exleft); :};
