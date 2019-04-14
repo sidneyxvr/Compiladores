@@ -103,9 +103,25 @@ MethodDecl ::= PUBLIC Type:t Identifier:id LPAREN FormalList:fl RPAREN
 			LBRACE VarDeclList:vl RETURN Expression:e SEMICOLON RBRACE 
             {: RESULT = new MethodDecl(t, id, fl, vl, new StatementList(vlxleft), e, txleft); :}
             
+           	| PUBLIC Type:t Identifier:id LPAREN FormalList:fl RPAREN 
+			LBRACE:lb RETURN Expression:e SEMICOLON RBRACE 
+            {: RESULT = new MethodDecl(t, id, fl, new VarDeclList(lbxleft), new StatementList(lbxleft), e, txleft); :}
+            
             | PUBLIC Type:t Identifier:id LPAREN:l RPAREN 
 			LBRACE VarDeclList:vl StatementList:sl RETURN Expression:e SEMICOLON RBRACE 
-            {: RESULT = new MethodDecl(t, id, new FormalList(lxleft), vl, sl, e, txleft); :};
+            {: RESULT = new MethodDecl(t, id, new FormalList(lxleft), vl, sl, e, txleft); :}
+            
+            | PUBLIC Type:t Identifier:id LPAREN:l RPAREN 
+			LBRACE:lb StatementList:sl RETURN Expression:e SEMICOLON RBRACE 
+            {: RESULT = new MethodDecl(t, id, new FormalList(lxleft), new VarDeclList(lbxleft), sl, e, txleft); :}
+            
+            | PUBLIC Type:t Identifier:id LPAREN:l RPAREN 
+			LBRACE VarDeclList:vl RETURN Expression:e SEMICOLON RBRACE 
+            {: RESULT = new MethodDecl(t, id, new FormalList(lxleft), vl, new StatementList(vlxleft), e, txleft); :}
+            
+            | PUBLIC Type:t Identifier:id LPAREN:l RPAREN 
+			LBRACE:lb RETURN Expression:e SEMICOLON RBRACE 
+            {: RESULT = new MethodDecl(t, id, new FormalList(lxleft), new VarDeclList(lbxleft), new StatementList(lbxleft), e, txleft); :};
             
 Type ::=  INT:i
             {: RESULT = new IntegerType(ixleft); :}
