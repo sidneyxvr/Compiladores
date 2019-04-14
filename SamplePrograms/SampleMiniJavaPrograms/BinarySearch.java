@@ -104,8 +104,8 @@ class BS{
 	else if (!(num1 < aux02)) retval = false ;
 	else retval = true ;
 	return retval ;
-    }
-
+	}
+	
     // Print the integer array
     public int Print(){
 	int j ;

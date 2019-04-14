@@ -107,12 +107,7 @@ letter = [a-zA-Z]
 digit = [0-9]
 eol = [\r\n]
 white = {eol}|[ \t]
-exponent = [eE] [+-]? {digit}+
-bigdecimal = {digit}+ "." {digit}*
-smalldecimal = "." {digit}+
-decimaldouble = ({bigdecimal} | {smalldecimal}) {exponent}? ([dD])?
-intdouble = {digit}+ ({exponent} [dD] | {exponent} | [dD])
-
+literal = [0-9]+
 %%
 
 /* Token definitions */
@@ -123,7 +118,6 @@ intdouble = {digit}+ ({exponent} [dD] | {exponent} | [dD])
 "new" { return symbol(sym.NEW); }
 "extends" { return symbol(sym.EXTENDS); }
 "int" { return symbol(sym.INT); }
-"double" { return symbol(sym.DOUBLE); }
 "boolean" { return symbol(sym.BOOLEAN); }
 "public" { return symbol(sym.PUBLIC); }
 "static" { return symbol(sym.STATIC); }
@@ -144,28 +138,21 @@ intdouble = {digit}+ ({exponent} [dD] | {exponent} | [dD])
 "+" { return symbol(sym.PLUS); }
 "=" { return symbol(sym.BECOMES); }
 "-" { return symbol(sym.MINUS); }
-"/" { return symbol(sym.DIVIDE); }
-"%" { return symbol(sym.MOD); }
 "*" { return symbol(sym.TIMES); }
 "!" { return symbol(sym.NOT); }
 "&&" { return symbol(sym.AND); }
-"||" { return symbol(sym.OR); }
 "<" { return symbol(sym.LESSTHAN); }
-">" { return symbol(sym.GREATERTHAN); }
-"<=" { return symbol(sym.LESSEQUAL); }
-">=" { return symbol(sym.GREATEREQUAL); }
-"!=" { return symbol(sym.NOTEQUAL); }
-"." { return symbol(sym.DOT); }
 
 /* delimiters */
 "(" { return symbol(sym.LPAREN); }
 ")" { return symbol(sym.RPAREN); }
 ";" { return symbol(sym.SEMICOLON); }
 "," { return symbol(sym.COMMA); }
-"[" { return symbol(sym.RBRACKET); }
-"]" { return symbol(sym.LBRACKET); }
+"]" { return symbol(sym.RBRACKET); }
+"[" { return symbol(sym.LBRACKET); }
 "{" { return symbol(sym.LBRACE); }
 "}" { return symbol(sym.RBRACE); }
+"." { return symbol(sym.DOT); }
 
 /* identifiers */
 {letter} ({letter}|{digit}|_)* {
@@ -176,8 +163,7 @@ intdouble = {digit}+ ({exponent} [dD] | {exponent} | [dD])
 {white}+ { /* ignore whitespace */ }
 
 /* constants */
-{digit}+ { return symbol(sym.INTLITERAL, yytext()); }
-({decimaldouble} | {intdouble}) { return symbol(sym.DOUBLELITERAL, yytext()); }
+{literal} { return symbol(sym.DIGIT, new Integer(yytext())); }
 
 /* comment */
 "//" .* {eol} { /* ignore comments */ }
