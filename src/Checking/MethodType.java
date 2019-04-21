@@ -5,26 +5,26 @@ import java.util.Vector;
 
 import AST.Type;
 
-public class Method {
-	String name;
-	Type type;
+public class MethodType {
+	private String name;
+	private Type type;
 	
-	Hashtable<String, Variable> arguments;
-	Hashtable<String, Variable> localVariable;
+	Hashtable<String, VariableType> arguments;
+	Hashtable<String, VariableType> localVariable;
 	
 	/* Used in type checking to verify if the method is called with the types of the arguments correct */
 	Vector<Type> argumentsTypes;
 	
-	public Method(String name, Type type)
+	public MethodType(Type type, String name)
 	{
 		this.name = name;
 		this.type = type;
-		arguments = new Hashtable<String, Variable>();
-		localVariable = new Hashtable<String, Variable>();
+		arguments = new Hashtable<String, VariableType>();
+		localVariable = new Hashtable<String, VariableType>();
 		argumentsTypes = new Vector<Type>();
 	}
 	
-	public Hashtable<String, Variable> getArguments() {
+	public Hashtable<String, VariableType> getArguments() {
 		return arguments;
 	}
 	
@@ -32,7 +32,7 @@ public class Method {
 		return argumentsTypes;
 	}
 	
-	public Hashtable<String, Variable> getLocalVariable() {
+	public Hashtable<String, VariableType> getLocalVariable() {
 		return localVariable;
 	}
 	
@@ -44,7 +44,7 @@ public class Method {
 		return type;
 	}
 	
-	public void setArguments(Hashtable<String, Variable> arguments) {
+	public void setArguments(Hashtable<String, VariableType> arguments) {
 		this.arguments = arguments;
 	}
 	
@@ -52,7 +52,7 @@ public class Method {
 		this.argumentsTypes = argumentsTypes;
 	}
 	
-	public void setLocalVariable(Hashtable<String, Variable> localVariable) {
+	public void setLocalVariable(Hashtable<String, VariableType> localVariable) {
 		this.localVariable = localVariable;
 	}
 	
@@ -69,13 +69,13 @@ public class Method {
 		System.out.println("*** " + name + " ***");
 		
 		System.out.println("--- Arguments ---");
-		for(Variable aux: arguments.values())
+		for(VariableType aux: arguments.values())
 		{
 			aux.print();
 		}
 		
 		System.out.println("--- Local Variables ---");
-		for(Variable aux: localVariable.values())
+		for(VariableType aux: localVariable.values())
 		{
 			aux.print();
 		}

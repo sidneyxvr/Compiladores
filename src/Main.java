@@ -8,7 +8,7 @@ import java.util.Set;
 import AST.Program;
 import AST.Statement;
 import AST.Visitor.PrettyPrintVisitor;
-import Checking.SymbolTableBuilder;
+import Checking.SymbolTable;
 import Code.CodeGenerator;
 import Parser.parser;
 import Scanner.scanner;
@@ -25,7 +25,7 @@ public class Main {
 	        ComplexSymbolFactory sf = new ComplexSymbolFactory();
 	        Reader in = new BufferedReader(new FileReader(path));
 	        
-	        SymbolTableBuilder table = new SymbolTableBuilder();
+	        SymbolTable table = new SymbolTable();
 	        
 	        scanner s = new scanner(in, sf);
 	        parser p = new parser(s, sf);
@@ -43,7 +43,7 @@ public class Main {
 	        }
 	        
 	        CodeGenerator c = new CodeGenerator();
-	        c.tableGC = table.symbolTable;
+	        c.tableGC = table.globalTable;
 	        
 	        program.accept(c);
 	        

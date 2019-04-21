@@ -2,11 +2,11 @@ package Checking;
 
 import AST.Type;
 
-public class Variable {
-	String name;
-	Type type;
+public class VariableType {
+	private String name;
+	private Type type;
 	
-	public Variable(Type type, String name)
+	public VariableType(Type type, String name)
 	{
 		this.type = type;
 		this.name = name;
